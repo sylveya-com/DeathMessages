@@ -1,34 +1,26 @@
 package me.lokspel.deathmessages.commands;
 
 import me.lokspel.deathmessages.DeathMessages;
-import me.lokspel.deathmessages.config.MainConfig;
-import me.lokspel.deathmessages.config.UserDataManager;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.command.CommandSender;
 
 public class ReloadCommand implements SubCommand {
 
-    private final MainConfig config;
-    private final UserDataManager userData;
-    private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
+    private final DeathMessages plugin;
 
     public ReloadCommand(DeathMessages plugin) {
-        this.config = plugin.getMainConfig();
-        this.userData = plugin.getUserDataManager();
+        this.plugin = plugin;
     }
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!sender.hasPermission("deathmessages.command.reload")) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().noPermission().replace("%prefix%", config.messages().prefix())));
+            sender.sendMessage(plugin.getLang().prefixed("No-Permission"));
             return true;
         }
 
-        config.load();
-        userData.reloadUserData();
-        sender.sendMessage(legacySerializer.deserialize(
-                config.messages().reloaded().replace("%prefix%", config.messages().prefix())));
+        plugin.reloadConfig();
+        plugin.getUserData().reload();
+        sender.sendMessage(plugin.getLang().prefixed("Sub-Commands.Reload.Reloaded"));
         return true;
     }
 }

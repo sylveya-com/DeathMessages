@@ -2,6 +2,7 @@ package me.lokspel.deathmessages.utils;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.inventory.ItemStack;
 
@@ -9,6 +10,19 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class MessageUtils {
+
+    public static TextColor parseColor(String input, TextColor fallback) {
+        if (input == null || input.isEmpty()) {
+            return fallback;
+        }
+        String clean = input.replace("<", "").replace(">", "").trim();
+        if (clean.startsWith("#")) {
+            TextColor hex = TextColor.fromHexString(clean);
+            return hex != null ? hex : fallback;
+        }
+        TextColor named = NamedTextColor.NAMES.value(clean.toLowerCase());
+        return named != null ? named : fallback;
+    }
 
     public static Component colorName(String name, TextColor color) {
         return Component.text(name).color(color).hoverEvent(null);
@@ -59,5 +73,4 @@ public class MessageUtils {
                 .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
                 .collect(Collectors.joining(" "));
     }
-
 }

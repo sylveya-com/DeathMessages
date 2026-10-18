@@ -1,4 +1,4 @@
-package me.lokspel.deathmessages.config;
+package me.lokspel.deathmessages.utils;
 
 import me.lokspel.deathmessages.DeathMessages;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,33 +9,26 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-public class UserDataManager {
+public class UserData {
 
     private final DeathMessages plugin;
+    private final File userDataFile;
     private FileConfiguration userData;
-    private File userDataFile;
 
-    public UserDataManager(DeathMessages plugin) {
+    public UserData(DeathMessages plugin) {
         this.plugin = plugin;
+        this.userDataFile = new File(plugin.getDataFolder(), "UserData.yml");
+        load();
     }
 
-    public void loadUserData() {
-        if (!plugin.getDataFolder().exists()) {
-            if (!plugin.getDataFolder().mkdirs()) {
-                plugin.getLogger().warning("Failed to create plugin data folder.");
-            }
-        }
-
-        userDataFile = new File(plugin.getDataFolder(), "UserData.yml");
-
+    public void load() {
         if (!userDataFile.exists()) {
             plugin.saveResource("UserData.yml", false);
         }
-
         userData = YamlConfiguration.loadConfiguration(userDataFile);
     }
 
-    public void saveUserData() {
+    public void save() {
         try {
             userData.save(userDataFile);
         } catch (IOException e) {
@@ -49,7 +42,7 @@ public class UserDataManager {
 
     public void setMessagesEnabled(UUID uuid, boolean enabled) {
         userData.set(uuid + ".messages", enabled);
-        saveUserData();
+        save();
     }
 
     public boolean isConnectionMessagesEnabled(UUID uuid) {
@@ -58,7 +51,7 @@ public class UserDataManager {
 
     public void setConnectionMessagesEnabled(UUID uuid, boolean enabled) {
         userData.set(uuid + ".connection-messages", enabled);
-        saveUserData();
+        save();
     }
 
     public List<String> blacklist(UUID viewerUUID) {
@@ -82,7 +75,7 @@ public class UserDataManager {
 
         userData.set(viewerUUID + ".blacklist", entries);
         userData.set(targetUUID + ".username", targetUsername);
-        saveUserData();
+        save();
         return !currentlyBlacklisted;
     }
 
@@ -96,10 +89,7 @@ public class UserDataManager {
         return null;
     }
 
-    public void reloadUserData() {
-        if (userDataFile != null && userDataFile.exists()) {
-            userData = YamlConfiguration.loadConfiguration(userDataFile);
-        }
+    public void reload() {
+        load();
     }
-
 }

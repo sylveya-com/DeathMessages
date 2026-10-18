@@ -1,9 +1,8 @@
 package me.lokspel.deathmessages.commands;
 
 import me.lokspel.deathmessages.DeathMessages;
-import me.lokspel.deathmessages.config.MainConfig;
-import me.lokspel.deathmessages.config.UserDataManager;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import me.lokspel.deathmessages.utils.UserData;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,25 +11,23 @@ import org.jetbrains.annotations.NotNull;
 
 public class ToggleConnectionMsgCommand implements CommandExecutor {
 
-    private final MainConfig config;
-    private final UserDataManager userData;
-    private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
+    private final DeathMessages plugin;
+    private final UserData userData;
 
     public ToggleConnectionMsgCommand(DeathMessages plugin) {
-        this.config = plugin.getMainConfig();
-        this.userData = plugin.getUserDataManager();
+        this.plugin = plugin;
+        this.userData = plugin.getUserData();
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String @NotNull [] args) {
         if (!sender.hasPermission("deathmessages.command.toggleconnectionmsg")) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().noPermission().replace("%prefix%", config.messages().prefix())));
+            sender.sendMessage(plugin.getLang().prefixed("No-Permission"));
             return true;
         }
 
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(legacySerializer.deserialize("&cOnly players can run this command."));
+            sender.sendMessage(plugin.getLang().get("Player-Only-Command"));
             return true;
         }
 
@@ -38,9 +35,9 @@ public class ToggleConnectionMsgCommand implements CommandExecutor {
         userData.setConnectionMessagesEnabled(player.getUniqueId(), !current);
 
         if (current) {
-            player.sendMessage(legacySerializer.deserialize("&6Connection messages hidden."));
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>Connection messages hidden."));
         } else {
-            player.sendMessage(legacySerializer.deserialize("&6Connection messages unhidden."));
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<gold>Connection messages unhidden."));
         }
         return true;
     }

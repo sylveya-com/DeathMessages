@@ -1,7 +1,7 @@
 package me.lokspel.deathmessages.commands;
 
-import me.lokspel.deathmessages.config.MainConfig;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import me.lokspel.deathmessages.DeathMessages;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
 public class CommandDispatcher implements CommandExecutor, TabCompleter {
 
     private final Map<String, SubCommand> subCommands = new LinkedHashMap<>();
-    private final MainConfig config;
-    private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
+    private final DeathMessages plugin;
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public CommandDispatcher(MainConfig config, List<RegisteredCommand> commands) {
-        this.config = config;
+    public CommandDispatcher(DeathMessages plugin, List<RegisteredCommand> commands) {
+        this.plugin = plugin;
         for (RegisteredCommand cmd : commands) {
             subCommands.put(cmd.name(), cmd.executor());
         }
@@ -43,9 +43,9 @@ public class CommandDispatcher implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(CommandSender sender) {
-        for (String line : config.messages().help()) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    line.replace("%prefix%", config.messages().prefix())));
+        String prefix = plugin.getConfig().getString("Commands.DeathMessages.Prefix", "<gray>[DeathMessages]<reset> ");
+        for (String line : plugin.getConfig().getStringList("Commands.DeathMessages.Help")) {
+            sender.sendMessage(miniMessage.deserialize(line.replace("<prefix>", prefix).replace("%prefix%", prefix)));
         }
     }
 

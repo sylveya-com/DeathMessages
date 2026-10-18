@@ -1,9 +1,7 @@
 package me.lokspel.deathmessages.commands;
 
 import me.lokspel.deathmessages.DeathMessages;
-import me.lokspel.deathmessages.config.MainConfig;
-import me.lokspel.deathmessages.config.UserDataManager;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import me.lokspel.deathmessages.utils.UserData;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -18,30 +16,28 @@ import java.util.stream.Collectors;
 
 public class BlacklistCommand implements SubCommand, TabCompleter {
 
-    private final MainConfig config;
-    private final UserDataManager userData;
-    private final LegacyComponentSerializer legacySerializer = LegacyComponentSerializer.legacyAmpersand();
+    private final DeathMessages plugin;
+    private final UserData userData;
 
     public BlacklistCommand(DeathMessages plugin) {
-        this.config = plugin.getMainConfig();
-        this.userData = plugin.getUserDataManager();
+        this.plugin = plugin;
+        this.userData = plugin.getUserData();
     }
 
     @Override
     public boolean execute(CommandSender sender, String[] args) {
         if (!(sender instanceof Player viewer)) {
-            sender.sendMessage(legacySerializer.deserialize(config.messages().playerOnly()));
+            sender.sendMessage(plugin.getLang().get("Player-Only-Command"));
             return true;
         }
 
         if (!sender.hasPermission("deathmessages.command.blacklist")) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().noPermission().replace("%prefix%", config.messages().prefix())));
+            sender.sendMessage(plugin.getLang().prefixed("No-Permission"));
             return true;
         }
 
         if (args.length < 2) {
-            sender.sendMessage(legacySerializer.deserialize(config.messages().blacklistHelp()));
+            sender.sendMessage(plugin.getLang().get("Sub-Commands.Blacklist.Help"));
             return true;
         }
 
@@ -65,21 +61,19 @@ public class BlacklistCommand implements SubCommand, TabCompleter {
         }
 
         if (targetUUID == null) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().blacklistUsernameNonexistent()
-                            .replace("%prefix%", config.messages().prefix())
-                            .replace("%player%", username)));
+            sender.sendMessage(plugin.getLang().prefixed(
+                    "Sub-Commands.Blacklist.Username-None-Existent", "player", username));
             return true;
         }
 
         boolean nowBlacklisted = userData.toggleBlacklist(viewer.getUniqueId(), targetUUID, username);
 
         if (nowBlacklisted) {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().blacklistAdd().replace("%player%", username)));
+            sender.sendMessage(plugin.getLang().get(
+                    "Sub-Commands.Blacklist.Blacklist-Add", "player", username));
         } else {
-            sender.sendMessage(legacySerializer.deserialize(
-                    config.messages().blacklistRemove().replace("%player%", username)));
+            sender.sendMessage(plugin.getLang().get(
+                    "Sub-Commands.Blacklist.Blacklist-Remove", "player", username));
         }
         return true;
     }

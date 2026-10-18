@@ -1,12 +1,12 @@
 package me.lokspel.deathmessages.events;
 
 import me.lokspel.deathmessages.DeathMessages;
-import me.lokspel.deathmessages.config.MainConfig;
-import me.lokspel.deathmessages.config.UserDataManager;
 import me.lokspel.deathmessages.utils.ItemUtils;
 import me.lokspel.deathmessages.utils.MessageUtils;
 import me.lokspel.deathmessages.utils.PlayerUtils;
+import me.lokspel.deathmessages.utils.UserData;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,28 +19,28 @@ import org.bukkit.inventory.ItemStack;
 
 public class OnPlayerDeathEvent implements Listener {
 
-    private final MainConfig config;
-    private final UserDataManager userData;
+    private final DeathMessages plugin;
+    private final UserData userData;
 
-    public OnPlayerDeathEvent() {
-        this.config = DeathMessages.getInstance().getMainConfig();
-        this.userData = DeathMessages.getInstance().getUserDataManager();
+    public OnPlayerDeathEvent(DeathMessages plugin) {
+        this.plugin = plugin;
+        this.userData = plugin.getUserData();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void handle(PlayerDeathEvent event) {
-        if (!config.settings().deathMessagesEnabled()) {
+        if (!plugin.getConfig().getBoolean("Settings.Death-Messages", true)) {
             return;
         }
 
         Player player = event.getEntity();
 
-        if (PlayerUtils.hasNotPlayedLongEnough(player, config.settings().minPlayTimeMinutes())) {
+        if (PlayerUtils.hasNotPlayedLongEnough(player, plugin.getConfig().getInt("Settings.Min-Playtime-Minutes", 0))) {
             return;
         }
 
         Player killer = player.getKiller();
-        int cooldownSeconds = config.settings().deathMessageCooldownSeconds();
+        int cooldownSeconds = plugin.getConfig().getInt("Settings.Death-Message-Cooldown-Seconds", 10);
         Component deathMessage = event.deathMessage();
 
         if (deathMessage == null || PlayerUtils.isCooldownActive(player, cooldownSeconds)) {
@@ -53,14 +53,14 @@ public class OnPlayerDeathEvent implements Listener {
 
         Component colored = colorDeathMessage(
                 deathMessage,
-                config.colors().deathMain(),
+                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Main"), NamedTextColor.DARK_RED),
                 playerName,
-                config.colors().deathPlayer(),
+                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Player"), NamedTextColor.DARK_AQUA),
                 killerName,
-                config.colors().deathKiller(),
-                config.colors().deathWeapon(),
+                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Killer"), NamedTextColor.DARK_AQUA),
+                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Weapon"), NamedTextColor.GOLD),
                 killer,
-                config.settings().weaponHoverEnabled()
+                plugin.getConfig().getBoolean("Settings.Weapon-Hover", true)
         );
 
         for (Player online : player.getServer().getOnlinePlayers()) {
