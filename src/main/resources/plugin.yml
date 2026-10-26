@@ -17,17 +17,3 @@ commands:
     aliases: [dmtoggle, dmt]
     description: Shortcut to toggle death messages.
     usage: /<command>
-
-permissions:
-  deathmessages.command.toggle:
-    description: Allows toggling death messages.
-    default: op
-  deathmessages.command.blacklist:
-    description: Allows blacklisting a player.
-    default: op
-  deathmessages.command.reload:
-    description: Allows reloading the plugin configuration.
-    default: op
-  deathmessages.command.toggleconnectionmsg:
-    description: Allows toggling join/quit messages.
-    default: op
