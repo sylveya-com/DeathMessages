@@ -5,13 +5,17 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class MessageUtils {
+public final class ComponentUtil {
 
-    public static TextColor parseColor(String input, TextColor fallback) {
+    private ComponentUtil() {}
+
+    public static TextColor parseColor(@Nullable String input, @NotNull TextColor fallback) {
         if (input == null || input.isEmpty()) {
             return fallback;
         }
@@ -24,24 +28,24 @@ public class MessageUtils {
         return named != null ? named : fallback;
     }
 
-    public static Component colorName(String name, TextColor color) {
+    public static @NotNull Component colorName(@NotNull String name, @NotNull TextColor color) {
         return Component.text(name).color(color).hoverEvent(null);
     }
 
-    public static Component colorItemName(String name, TextColor color, ItemStack item) {
+    public static @NotNull Component colorItemName(@NotNull String name, @NotNull TextColor color, @NotNull ItemStack item) {
         return Component.text(name).color(color).hoverEvent(item.asHoverEvent());
     }
 
-    public static Component stripHoverEvents(Component component) {
+    public static @NotNull Component stripHoverEvents(@NotNull Component component) {
         if (component instanceof TranslatableComponent tc) {
             return tc.arguments(tc.arguments().stream()
-                .map(a -> a.asComponent().hoverEvent(null))
-                .toList());
+                    .map(a -> a.asComponent().hoverEvent(null))
+                    .toList());
         }
         return component;
     }
 
-    public static Component applyMainColor(Component component, TextColor mainColor) {
+    public static @NotNull Component applyMainColor(@NotNull Component component, @Nullable TextColor mainColor) {
         Component colored = stripHoverEvents(component);
         if (mainColor != null) {
             colored = colored.color(mainColor);
@@ -49,7 +53,7 @@ public class MessageUtils {
         return colored;
     }
 
-    public static Component replaceColoredName(Component component, String name, TextColor color) {
+    public static @NotNull Component replaceColoredName(@NotNull Component component, @Nullable String name, @NotNull TextColor color) {
         if (name == null || name.isEmpty()) {
             return component;
         }
@@ -58,7 +62,7 @@ public class MessageUtils {
                 .replacement(colorName(name, color)));
     }
 
-    public static Component replaceColoredItemName(Component component, String name, TextColor color, ItemStack item) {
+    public static @NotNull Component replaceColoredItemName(@NotNull Component component, @Nullable String name, @NotNull TextColor color, @NotNull ItemStack item) {
         if (name == null || name.isEmpty()) {
             return component;
         }
@@ -67,7 +71,7 @@ public class MessageUtils {
                 .replacement(colorItemName(name, color, item)));
     }
 
-    public static String toReadableName(String value) {
+    public static @NotNull String toReadableName(@NotNull String value) {
         return Arrays.stream(value.toLowerCase().split("_"))
                 .filter(word -> !word.isEmpty())
                 .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))

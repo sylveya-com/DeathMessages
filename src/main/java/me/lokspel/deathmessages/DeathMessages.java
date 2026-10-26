@@ -1,27 +1,21 @@
 package me.lokspel.deathmessages;
 
-import me.lokspel.deathmessages.commands.BlacklistCommand;
-import me.lokspel.deathmessages.commands.CommandDispatcher;
-import me.lokspel.deathmessages.commands.CommandDispatcher.RegisteredCommand;
-import me.lokspel.deathmessages.commands.ReloadCommand;
-import me.lokspel.deathmessages.commands.ToggleCommand;
-import me.lokspel.deathmessages.commands.ToggleConnectionMsgCommand;
+import me.lokspel.deathmessages.commands.deathmessages.DeathMessagesCmd;
+import me.lokspel.deathmessages.commands.deathmessages.subcommands.ToggleSubCmd;
+import me.lokspel.deathmessages.commands.deathmessagestoggle.DeathMessagesToggleCmd;
+import me.lokspel.deathmessages.commands.toggleconnectionmsg.ToggleConnectionMsgCmd;
 import me.lokspel.deathmessages.events.OnPlayerDeathEvent;
 import me.lokspel.deathmessages.events.OnPlayerJoinEvent;
 import me.lokspel.deathmessages.events.OnPlayerQuitEvent;
-import me.lokspel.deathmessages.utils.LangUtil;
+import me.lokspel.deathmessages.utils.PluginPermission;
 import me.lokspel.deathmessages.utils.UserData;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.List;
-import java.util.Objects;
 
 public class DeathMessages extends JavaPlugin {
 
     private static DeathMessages instance;
     private UserData userData;
-    private LangUtil lang;
 
     @Override
     public void onEnable() {
@@ -30,23 +24,14 @@ public class DeathMessages extends JavaPlugin {
 
         new Metrics(this, 33462);
 
-        lang = new LangUtil(this);
         userData = new UserData(this);
 
-        var toggleCommand = new ToggleCommand(this);
+        PluginPermission.registerAll();
 
-        CommandDispatcher dispatcher = new CommandDispatcher(this, List.of(
-                new RegisteredCommand("reload", new ReloadCommand(this)),
-                new RegisteredCommand("toggle", toggleCommand),
-                new RegisteredCommand("blacklist", new BlacklistCommand(this))
-        ));
-        var deathMessagesCmd = Objects.requireNonNull(getCommand("deathmessages"));
-        deathMessagesCmd.setExecutor(dispatcher);
-        deathMessagesCmd.setTabCompleter(dispatcher);
-
-        Objects.requireNonNull(getCommand("toggleconnectionmsg")).setExecutor(new ToggleConnectionMsgCommand(this));
-
-        Objects.requireNonNull(getCommand("deathmessagestoggle")).setExecutor((sender, cmd, label, args) -> toggleCommand.execute(sender, args));
+        var toggleSubCmd = new ToggleSubCmd();
+        new DeathMessagesCmd(toggleSubCmd).enable();
+        new DeathMessagesToggleCmd(toggleSubCmd).enable();
+        new ToggleConnectionMsgCmd().enable();
 
         getServer().getPluginManager().registerEvents(new OnPlayerDeathEvent(this), this);
         getServer().getPluginManager().registerEvents(new OnPlayerJoinEvent(this), this);
@@ -55,6 +40,7 @@ public class DeathMessages extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        PluginPermission.unregisterAll();
         if (userData != null) {
             userData.save();
         }
@@ -66,9 +52,5 @@ public class DeathMessages extends JavaPlugin {
 
     public UserData getUserData() {
         return userData;
-    }
-
-    public LangUtil getLang() {
-        return lang;
     }
 }

@@ -15,6 +15,6 @@ public class ItemUtils {
                 return textComponent.content();
             }
         }
-        return MessageUtils.toReadableName(weapon.getType().name());
+        return ComponentUtil.toReadableName(weapon.getType().name());
     }
 }

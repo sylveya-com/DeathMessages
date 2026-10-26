@@ -1,8 +1,8 @@
 package me.lokspel.deathmessages.events;
 
 import me.lokspel.deathmessages.DeathMessages;
+import me.lokspel.deathmessages.utils.ComponentUtil;
 import me.lokspel.deathmessages.utils.ItemUtils;
-import me.lokspel.deathmessages.utils.MessageUtils;
 import me.lokspel.deathmessages.utils.PlayerUtils;
 import me.lokspel.deathmessages.utils.UserData;
 import net.kyori.adventure.text.Component;
@@ -53,12 +53,12 @@ public class OnPlayerDeathEvent implements Listener {
 
         Component colored = colorDeathMessage(
                 deathMessage,
-                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Main"), NamedTextColor.DARK_RED),
+                ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Death.Main"), NamedTextColor.DARK_RED),
                 playerName,
-                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Player"), NamedTextColor.DARK_AQUA),
+                ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Death.Player"), NamedTextColor.DARK_AQUA),
                 killerName,
-                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Killer"), NamedTextColor.DARK_AQUA),
-                MessageUtils.parseColor(plugin.getConfig().getString("Colors.Death.Weapon"), NamedTextColor.GOLD),
+                ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Death.Killer"), NamedTextColor.DARK_AQUA),
+                ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Death.Weapon"), NamedTextColor.GOLD),
                 killer,
                 plugin.getConfig().getBoolean("Settings.Weapon-Hover", true)
         );
@@ -86,17 +86,17 @@ public class OnPlayerDeathEvent implements Listener {
             Player killer,
             boolean weaponHoverEnabled
     ) {
-        Component colored = MessageUtils.applyMainColor(message, mainColor);
-        colored = MessageUtils.replaceColoredName(colored, playerName, playerColor);
-        colored = MessageUtils.replaceColoredName(colored, killerName, killerColor);
+        Component colored = ComponentUtil.applyMainColor(message, mainColor);
+        colored = ComponentUtil.replaceColoredName(colored, playerName, playerColor);
+        colored = ComponentUtil.replaceColoredName(colored, killerName, killerColor);
 
         if (killer != null) {
             ItemStack weapon = killer.getInventory().getItemInMainHand();
             if (weapon.getType() != Material.AIR) {
                 String weaponName = ItemUtils.weaponName(weapon);
                 colored = weaponHoverEnabled
-                        ? MessageUtils.replaceColoredItemName(colored, weaponName, weaponColor, weapon)
-                        : MessageUtils.replaceColoredName(colored, weaponName, weaponColor);
+                        ? ComponentUtil.replaceColoredItemName(colored, weaponName, weaponColor, weapon)
+                        : ComponentUtil.replaceColoredName(colored, weaponName, weaponColor);
             }
         }
 

@@ -1,7 +1,7 @@
 package me.lokspel.deathmessages.events;
 
 import me.lokspel.deathmessages.DeathMessages;
-import me.lokspel.deathmessages.utils.MessageUtils;
+import me.lokspel.deathmessages.utils.ComponentUtil;
 import me.lokspel.deathmessages.utils.PlayerUtils;
 import me.lokspel.deathmessages.utils.UserData;
 import net.kyori.adventure.text.Component;
@@ -39,8 +39,8 @@ public class OnPlayerQuitEvent implements Listener {
 
         Component message = event.quitMessage();
         if (message != null) {
-            Component colored = MessageUtils.applyMainColor(message, MessageUtils.parseColor(plugin.getConfig().getString("Colors.Quit.Main"), NamedTextColor.GRAY));
-            colored = MessageUtils.replaceColoredName(colored, player.getName(), MessageUtils.parseColor(plugin.getConfig().getString("Colors.Quit.Player"), NamedTextColor.GRAY));
+            Component colored = ComponentUtil.applyMainColor(message, ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Quit.Main"), NamedTextColor.GRAY));
+            colored = ComponentUtil.replaceColoredName(colored, player.getName(), ComponentUtil.parseColor(plugin.getConfig().getString("Colors.Quit.Player"), NamedTextColor.GRAY));
 
             for (Player online : player.getServer().getOnlinePlayers()) {
                 if (userData.isConnectionMessagesEnabled(online.getUniqueId())) {
